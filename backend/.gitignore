@@ -1,1 +1,3 @@
 /tuneseek-env
+*__pycache__
+/uploads
