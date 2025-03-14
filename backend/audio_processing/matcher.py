@@ -16,8 +16,8 @@ def create_hashes(fingerprint, tag_range=5):
             delta_t = target_time - anchor_time
 
             # Create hash
-            hash_value = (anchor_freq, target_freq, delta_t)
-            hashes.append((hash_value, anchor_time))  # Store with song offset time
+            hash_value = (int(anchor_freq), int(target_freq), int(delta_t))
+            hashes.append((hash_value, int(anchor_time)))  # Store with song offset time
 
     return hashes
 
