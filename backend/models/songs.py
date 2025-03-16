@@ -4,4 +4,5 @@ from typing import List
 class Song(BaseModel):
     title: str
     artist: str
-    fingerprint: List[str]
+    hash : tuple
+    offset_time: int
