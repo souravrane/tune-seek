@@ -28,3 +28,18 @@ async def upload_song(file: UploadFile = File(...), title: str = Form("title"), 
     store_fingerprint(title, artist, hashes)
 
     return {"message": f"{title} song added"}
+
+@router.post("/match")
+async def match_audio(file: UploadFile = File(...)):
+    audio_path = os.path.join(UPLOADS_DIR, file.filename)
+    
+    # Save file locally
+    with open(audio_path, "wb") as buffer:
+        buffer.write(await file.read())
+
+    # Extract fingerprints from query audio (only first 30 seconds)
+    fingerprint = extract_fingerprint(audio_path, duration=20)
+    audio_hashes = create_hashes(fingerprint)
+    
+    matches = match_fingerprint(audio_hashes)
+    return {"matching songs " : matches.__str__()}
