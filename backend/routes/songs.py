@@ -42,4 +42,4 @@ async def match_audio(file: UploadFile = File(...)):
     audio_hashes = create_hashes(fingerprint)
     
     matching_tune = match_fingerprint(audio_hashes)
-    return {"matching_tune" : matching_tune}
+    return {"matching_tune" : matching_tune.__str__()}
