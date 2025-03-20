@@ -1,5 +1,5 @@
 from collections import defaultdict, Counter
-from models.database import db
+from models.database import db, find_matching_hashes, get_tune_by_id
 from utils.logger import log_function
 
 def create_hashes(fingerprint, tag_range=5):
@@ -27,29 +27,31 @@ def match_fingerprint(audio_hashes):
     match_scores = defaultdict(list)
 
     for query_hash, query_offset in audio_hashes:
-        results = db.songs.find({"hash": query_hash}, {"title": 1, "offset_time": 1})
+        results = find_matching_hashes(query_hash)
         
         for result in results:
-            song = result["title"]
-            song_offset = result["offset_time"]
+            song_id = result["tune_id"]
+            song_offset = result["offset"]
 
             # Compute offset difference
             offset_diff = song_offset - query_offset
-            match_scores[song].append(offset_diff)
+            match_scores[song_id].append(offset_diff)
 
-    print("Matches ", match_scores)
-    # Find and return the top 5 matching tunes based on the offset score
-    matching_tunes = list()
+    # Find and return the tune with the highest match score
+    highest_match = None
+    highest_score = 0
 
-    for song, offsets in match_scores.items():
+    for song_id, offsets in match_scores.items():
         histogram = Counter(offsets)
         # Get the most common offset and its count
         if histogram:
-            # Since peak_offset isn't used, directly get the count
             most_common = histogram.most_common(1)[0]
             peak_count = most_common[1]
-            matching_tunes.append([peak_count, song])
-
-    matching_tunes.sort(reverse=True)
-    return matching_tunes[:3]
+            
+            if peak_count > highest_score:
+                highest_score = peak_count
+                highest_match = song_id
+    
+    # Return the highest matching tune or None if no matches found
+    return get_tune_by_id(highest_match)
 
